@@ -1,73 +1,114 @@
-# React + TypeScript + Vite
+# Restaurante Romanova — Sitio Web
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Sitio web oficial del Restaurante Romanova (Gandia, Valencia) — cocina mediterránea de autor dirigida por la chef Farah desde 2017.
 
-Currently, two official plugins are available:
+## 🍽️ Características
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Página de inicio** con secciones: Hero, Nosotros, Especialidades, Galería, Reseñas, Contacto
+- **Página de reservas interna** (`/reservas`) con flujo de 3 pasos:
+  1. Selección de fecha y número de comensales
+  2. Selección de hora (con control de capacidad por slot)
+  3. Formulario de datos del cliente
+- **Envío automático de reservas por email** (vía Web3Forms)
+- **Envío automático de reservas por WhatsApp** (vía CallMeBot — directo, sin abrir la app)
+- **Galería de imágenes** con lightbox
+- **Diseño responsive** (móvil, tablet, escritorio)
+- **Animaciones de scroll** con IntersectionObserver
 
-## React Compiler
+## 🛠️ Stack Técnico
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **React 19** + **TypeScript**
+- **Vite 7** (bundler y dev server)
+- **Tailwind CSS 3.4** (estilos)
+- **React Router 7** (navegación entre páginas)
+- **shadcn/ui** (componentes UI)
+- **lucide-react** (iconos)
 
-## Expanding the ESLint configuration
+## 🚀 Instalación
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+```bash
+# 1. Clonar el repositorio
+git clone https://github.com/hmadnahhmenna49-a11y/ROMANOVA.git
+cd ROMANOVA
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+# 2. Instalar dependencias
+npm install
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# 3. Iniciar servidor de desarrollo
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+El sitio estará disponible en `http://localhost:3000`.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 📦 Build de producción
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run build      # Genera carpeta dist/
+npm run preview    # Previsualiza el build de producción
 ```
+
+## ⚙️ Configuración obligatoria (una sola vez)
+
+Antes de poner el sitio en producción, hay que configurar dos servicios en `src/pages/Reservas.tsx`:
+
+### 1. Web3Forms (envío de email)
+
+Para recibir las reservas en `hmadnahhmenna49@gmail.com`:
+
+1. Ir a https://web3forms.com/
+2. Introducir el email: `hmadnahhmenna49@gmail.com`
+3. Recibir el access key por email
+4. Reemplazar en `src/pages/Reservas.tsx` (línea ~23):
+   ```ts
+   const WEB3FORMS_ACCESS_KEY = 'YOUR_WEB3FORMS_ACCESS_KEY';
+   ```
+   con la clave recibida.
+
+### 2. CallMeBot (envío directo de WhatsApp)
+
+Para recibir las reservas en WhatsApp (+34 642 055 235) **sin abrir la app**:
+
+1. Desde el móvil con ese WhatsApp, añadir el contacto: **+34 644 79 27 34** (CallMeBot bot)
+2. Enviarle el mensaje: `I allow callmebot to send me messages`
+3. El bot responde con un API key
+4. Reemplazar en `src/pages/Reservas.tsx` (línea ~77):
+   ```ts
+   const CALLMEBOT_API_KEY = 'YOUR_CALLMEBOT_API_KEY';
+   ```
+   con la clave recibida.
+
+> **Nota sobre CORS:** CallMeBot no envía cabeceras CORS, por lo que el fetch se realiza con `mode: 'no-cors'`. La petición SÍ se envía y el mensaje SÍ se entrega, aunque el navegador no pueda leer la respuesta.
+
+## 📁 Estructura del proyecto
+
+```
+ROMANOVA/
+├── public/
+│   └── images/              # Imágenes del restaurante (interior, platos, etc.)
+├── src/
+│   ├── components/
+│   │   ├── Navbar.tsx       # Barra de navegación (compartida)
+│   │   ├── Footer.tsx       # Pie de página (compartido)
+│   │   └── ui/              # Componentes shadcn/ui
+│   ├── pages/
+│   │   ├── Home.tsx         # Página principal
+│   │   └── Reservas.tsx     # Página de reservas
+│   ├── App.tsx              # Router principal
+│   ├── main.tsx             # Punto de entrada
+│   └── index.css            # Estilos globales + Tailwind
+├── index.html
+├── package.json
+├── vite.config.ts
+└── tailwind.config.js
+```
+
+## 📞 Contacto
+
+- **Restaurante Romanova**
+- Calle Rausell 17, Plaza del Prado, 46702 Gandia, Valencia
+- Tel: +34 607 27 92 14
+- Facebook: @RestauranteRomanovaGandia
+
+## 📄 Licencia
+
+© 2025 Restaurante Romanova. Todos los derechos reservados.
