@@ -1,0 +1,176 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 30 20% 5%;
+    --foreground: 40 30% 95%;
+    --card: 30 15% 8%;
+    --card-foreground: 40 30% 95%;
+    --popover: 30 15% 8%;
+    --popover-foreground: 40 30% 95%;
+    --primary: 42 70% 55%;
+    --primary-foreground: 30 20% 5%;
+    --secondary: 30 10% 15%;
+    --secondary-foreground: 40 30% 95%;
+    --muted: 30 10% 18%;
+    --muted-foreground: 40 10% 65%;
+    --accent: 42 70% 55%;
+    --accent-foreground: 30 20% 5%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 30 10% 20%;
+    --input: 30 10% 20%;
+    --ring: 42 70% 55%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', sans-serif;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', serif;
+  }
+}
+
+@layer utilities {
+  .text-gold {
+    color: hsl(42, 70%, 55%);
+  }
+  .bg-gold {
+    background-color: hsl(42, 70%, 55%);
+  }
+  .border-gold {
+    border-color: hsl(42, 70%, 55%);
+  }
+  .hover\:bg-gold:hover {
+    background-color: hsl(42, 70%, 55%);
+  }
+  .bg-dark {
+    background-color: hsl(30, 20%, 5%);
+  }
+  .bg-dark-lighter {
+    background-color: hsl(30, 15%, 10%);
+  }
+  .font-display {
+    font-family: 'Playfair Display', serif;
+  }
+  .font-body {
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(30, 20%, 5%);
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(42, 40%, 30%);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(42, 70%, 55%);
+}
+
+/* Animation utilities */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 1s ease-out forwards;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.8s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.8s ease-out forwards;
+}
+
+/* Image hover effects */
+.image-hover-zoom {
+  overflow: hidden;
+}
+
+.image-hover-zoom img {
+  transition: transform 0.5s ease;
+}
+
+.image-hover-zoom:hover img {
+  transform: scale(1.08);
+}
+
+/* Gold shimmer effect */
+.gold-shimmer {
+  background: linear-gradient(
+    90deg,
+    hsl(42, 70%, 55%) 0%,
+    hsl(42, 90%, 70%) 50%,
+    hsl(42, 70%, 55%) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% { background-position: -200% 0; }
+  50% { background-position: 200% 0; }
+}
