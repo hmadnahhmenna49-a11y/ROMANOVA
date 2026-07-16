@@ -7,9 +7,11 @@ Sitio web oficial del Restaurante Romanova (Gandia, Valencia) — cocina mediter
 - **Página de inicio** con secciones: Hero, Nosotros, Especialidades, Galería, Reseñas, Contacto
 - **Página de reservas interna** (`/reservas`) con flujo de 3 pasos:
   1. Selección de fecha y número de comensales
-  2. Selección de hora (con control de capacidad por slot)
+  2. Selección de hora (con control de capacidad por slot en tiempo real)
   3. Formulario de datos del cliente
-- **Envío automático de reservas por email** (vía Web3Forms)
+- **Base de datos Firebase Firestore** para guardar todas las reservas
+- **Control de capacidad en tiempo real** — cuando un slot se llena, se bloquea
+  automáticamente para todos los visitantes (no solo para el navegador actual)
 - **Envío automático de reservas por WhatsApp** (vía CallMeBot — directo, sin abrir la app)
 - **Galería de imágenes** con lightbox
 - **Diseño responsive** (móvil, tablet, escritorio)
@@ -47,15 +49,63 @@ npm run build      # Genera carpeta dist/
 npm run preview    # Previsualiza el build de producción
 ```
 
+## ☁️ Despliegue en Cloudflare Pages
+
+Este proyecto incluye un archivo `public/_redirects` con el contenido:
+
+```
+/*    /index.html   200
+```
+
+Esto es **imprescindible** para que las rutas de React Router (como `/reservas`)
+funcionen al recargar la página o al entrar directamente por URL. Sin este
+archivo, Cloudflare Pages devuelve 404 al acceder a `/reservas` directamente.
+
+### Pasos para desplegar en Cloudflare Pages
+
+1. **Sube el proyecto a GitHub** (repositorio `hmadnahhmenna49-a11y/ROMANOVA`)
+
+2. Ve a https://dash.cloudflare.com → **Workers & Pages** → **Create application** → **Pages** → **Connect to Git**
+
+3. Selecciona el repositorio `ROMANOVA`
+
+4. Configura el build:
+   - **Framework preset:** `Vite`
+   - **Build command:** `npm run build`
+   - **Build output directory:** `dist`
+   - **Node version:** `20` (o superior)
+
+5. **IMPORTANTE — Variables de entorno:** Antes de desplegar, configura las
+   API keys en `src/pages/Reservas.tsx` y `src/lib/firebase.ts` (ver sección
+   "Configuración obligatoria" abajo). Las API keys no se pueden poner como
+   variables de entorno porque el código corre en el navegador (no hay backend).
+
+6. Click **Save and Deploy**. El despliegue tarda ~2 minutos.
+
+7. Cloudflare te dará una URL como `https://romanova.pages.dev`. Para usar
+   un dominio propio, ve a **Custom domains** en la configuración del proyecto.
+
+### Solución de problemas en Cloudflare Pages
+
+| Problema | Causa | Solución |
+|----------|-------|----------|
+| 404 al recargar `/reservas` | Falta `_redirects` | El archivo ya está incluido en `public/_redirects` — asegúrate de que está en el build |
+| WhatsApp no enviado | CallMeBot API key sin configurar | Reemplazar `'YOUR_CALLMEBOT_API_KEY'` en `src/pages/Reservas.tsx` |
+| Capacidad no sincroniza entre visitantes | Firebase sin configurar | Reemplazar placeholders en `src/lib/firebase.ts` y crear Firestore DB |
+| Reserva no se guarda | Firebase sin configurar o permisos incorrectos | Revisar reglas de Firestore (deben permitir `create`) |
+| Página en blanco | Build fallido | Revisa los logs de build en Cloudflare Pages |
+
+
 ## ⚙️ Configuración obligatoria (una sola vez)
 
-Antes de poner el sitio en producción, hay que configurar tres servicios en
+Antes de poner el sitio en producción, hay que configurar dos servicios en
 `src/pages/Reservas.tsx` y `src/lib/firebase.ts`:
 
-### 1. Firebase Firestore (base de datos de reservas)
+### 1. Firebase Firestore (base de datos de reservas + control de capacidad)
 
 Para que la capacidad por slot se sincronice en tiempo real entre todos
-los visitantes (cuando alguien reserva, los demás ven las plazas actualizadas):
+los visitantes (cuando alguien reserva, los demás ven las plazas actualizadas,
+y los horarios llenos se bloquean automáticamente para todos):
 
 1. Ir a https://console.firebase.google.com/ y crear un proyecto "romanova"
 2. Añadir una web app (`</>`) y copiar los valores de `firebaseConfig`
@@ -81,20 +131,7 @@ los visitantes (cuando alguien reserva, los demás ven las plazas actualizadas):
 > Si Firebase no se configura, el sitio sigue funcionando pero la capacidad
 > se trackea solo por navegador (localStorage), no entre visitantes.
 
-### 2. Web3Forms (envío de email)
-
-Para recibir las reservas en `hmadnahhmenna49@gmail.com`:
-
-1. Ir a https://web3forms.com/
-2. Introducir el email: `hmadnahhmenna49@gmail.com`
-3. Recibir el access key por email
-4. Reemplazar en `src/pages/Reservas.tsx` (línea ~23):
-   ```ts
-   const WEB3FORMS_ACCESS_KEY = 'YOUR_WEB3FORMS_ACCESS_KEY';
-   ```
-   con la clave recibida.
-
-### 3. CallMeBot (envío directo de WhatsApp)
+### 2. CallMeBot (envío directo de WhatsApp)
 
 Para recibir las reservas en WhatsApp (+34 642 055 235) **sin abrir la app**:
 
