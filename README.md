@@ -49,9 +49,39 @@ npm run preview    # Previsualiza el build de producción
 
 ## ⚙️ Configuración obligatoria (una sola vez)
 
-Antes de poner el sitio en producción, hay que configurar dos servicios en `src/pages/Reservas.tsx`:
+Antes de poner el sitio en producción, hay que configurar tres servicios en
+`src/pages/Reservas.tsx` y `src/lib/firebase.ts`:
 
-### 1. Web3Forms (envío de email)
+### 1. Firebase Firestore (base de datos de reservas)
+
+Para que la capacidad por slot se sincronice en tiempo real entre todos
+los visitantes (cuando alguien reserva, los demás ven las plazas actualizadas):
+
+1. Ir a https://console.firebase.google.com/ y crear un proyecto "romanova"
+2. Añadir una web app (`</>`) y copiar los valores de `firebaseConfig`
+3. Reemplazar los valores placeholder en `src/lib/firebase.ts` (líneas 50-57)
+4. En Firebase Console → Firestore Database → Create database (production mode)
+5. Región: `europe-west1` (o la más cercana a España)
+6. En la pestaña "Rules", pegar y publicar:
+
+   ```
+   rules_version = '2';
+   service cloud.firestore {
+     match /databases/{database}/documents {
+       match /bookings/{bookingId} {
+         allow read: if true;
+         allow create: if request.resource.data.party_size is int
+                         && request.resource.data.party_size <= 20
+                         && request.resource.data.party_size >= 1;
+       }
+     }
+   }
+   ```
+
+> Si Firebase no se configura, el sitio sigue funcionando pero la capacidad
+> se trackea solo por navegador (localStorage), no entre visitantes.
+
+### 2. Web3Forms (envío de email)
 
 Para recibir las reservas en `hmadnahhmenna49@gmail.com`:
 
@@ -64,7 +94,7 @@ Para recibir las reservas en `hmadnahhmenna49@gmail.com`:
    ```
    con la clave recibida.
 
-### 2. CallMeBot (envío directo de WhatsApp)
+### 3. CallMeBot (envío directo de WhatsApp)
 
 Para recibir las reservas en WhatsApp (+34 642 055 235) **sin abrir la app**:
 
@@ -90,6 +120,10 @@ ROMANOVA/
 │   │   ├── Navbar.tsx       # Barra de navegación (compartida)
 │   │   ├── Footer.tsx       # Pie de página (compartido)
 │   │   └── ui/              # Componentes shadcn/ui
+│   ├── lib/
+│   │   ├── firebase.ts      # Configuración de Firebase Firestore
+│   │   ├── bookings.ts      # Servicio de reservas (Firebase + fallback localStorage)
+│   │   └── utils.ts         # Utilidades (cn)
 │   ├── pages/
 │   │   ├── Home.tsx         # Página principal
 │   │   └── Reservas.tsx     # Página de reservas
