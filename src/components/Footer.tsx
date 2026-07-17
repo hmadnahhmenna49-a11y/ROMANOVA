@@ -1,5 +1,7 @@
-import { Link } from 'react-router';
 import { ArrowUp, Facebook, MapPin, Phone } from 'lucide-react';
+
+// External reservation URL (AutoReserve).
+const RESERVA_URL = 'https://autoreserve.com/en/restaurants/Zeo2fTJAjtsbDwGEMcty';
 
 export default function Footer() {
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -34,12 +36,14 @@ export default function Footer() {
               >
                 <Facebook className="w-4 h-4 text-[#d4a853]" />
               </a>
-              <Link
-                to="/reservas"
+              <a
+                href={RESERVA_URL}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-[#d4a853] hover:text-[#c49a48] text-sm font-medium tracking-wider uppercase transition-colors"
               >
                 Reservar Mesa →
-              </Link>
+              </a>
             </div>
           </div>
           <div>

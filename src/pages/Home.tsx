@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router';
 import { MapPin, Phone, Clock, Star, ChefHat, Utensils, Award, Calendar, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+
+// External reservation URL (AutoReserve).
+const RESERVA_URL = 'https://autoreserve.com/en/restaurants/Zeo2fTJAjtsbDwGEMcty';
 
 // Animation hook
 function useIntersectionObserver(options = {}) {
@@ -66,11 +68,11 @@ function HeroSection() {
           </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link to="/reservas">
+            <a href={RESERVA_URL} target="_blank" rel="noopener noreferrer">
               <Button className="bg-[#d4a853] hover:bg-[#c49a48] text-[#0d0a08] font-semibold px-8 py-6 text-base tracking-wider">
                 RESERVAR MESA
               </Button>
-            </Link>
+            </a>
             <a href="#dishes">
               <Button variant="outline" className="border-[#d4a853] text-[#d4a853] hover:bg-[#d4a853] hover:text-[#0d0a08] px-8 py-6 text-base tracking-wider">
                 VER CARTA
@@ -103,7 +105,7 @@ function AboutSection() {
             <div className="relative">
               <div className="absolute -top-4 -left-4 w-full h-full border-2 border-[#d4a853]/30 rounded-lg" />
               <img
-                src="/images/interior.png"
+                src="/images/chef-farah.png"
                 alt="Interior de Restaurante Romanova"
                 className="relative rounded-lg w-full h-[400px] sm:h-[500px] object-cover shadow-2xl"
               />
@@ -267,11 +269,11 @@ function DishesSection() {
 
         {/* CTA */}
         <div className={`text-center mt-12 transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-          <Link to="/reservas">
+          <a href={RESERVA_URL} target="_blank" rel="noopener noreferrer">
             <Button className="bg-[#d4a853] hover:bg-[#c49a48] text-[#0d0a08] font-semibold px-8 py-6 text-base tracking-wider">
               RESERVAR MESA
             </Button>
-          </Link>
+          </a>
         </div>
       </div>
     </section>
@@ -286,7 +288,7 @@ function GallerySection() {
   const images = [
     { src: '/images/exterior.jpg', alt: 'Fachada del Restaurante Romanova' },
     { src: '/images/fideua.jpg', alt: 'Fideuá de Marisco' },
-    { src: '/images/interior.png', alt: 'Interior del restaurante' },
+    { src: '/images/gilda-de-atun-con-crema.jpg', alt: 'Interior del restaurante' },
     { src: '/images/arroz-senyoret.jpg', alt: 'Arroz del Senyoret' },
     { src: '/images/bar.jpg', alt: 'Barra del restaurante' },
     { src: '/images/croquetas.jpg', alt: 'Croquetas de Jamón' },
@@ -543,11 +545,11 @@ function ContactSection() {
                 </div>
                 <div>
                   <h3 className="text-white font-semibold text-lg mb-1">Reservas</h3>
-                  <Link to="/reservas">
+                  <a href={RESERVA_URL} target="_blank" rel="noopener noreferrer">
                     <Button className="bg-[#d4a853] hover:bg-[#c49a48] text-[#0d0a08] font-semibold mt-2">
                       RESERVAR ONLINE
                     </Button>
-                  </Link>
+                  </a>
                 </div>
               </div>
             </div>

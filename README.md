@@ -5,14 +5,9 @@ Sitio web oficial del Restaurante Romanova (Gandia, Valencia) — cocina mediter
 ## 🍽️ Características
 
 - **Página de inicio** con secciones: Hero, Nosotros, Especialidades, Galería, Reseñas, Contacto
-- **Página de reservas interna** (`/reservas`) con flujo de 3 pasos:
-  1. Selección de fecha y número de comensales
-  2. Selección de hora (con control de capacidad por slot en tiempo real)
-  3. Formulario de datos del cliente
-- **Base de datos Firebase Firestore** para guardar todas las reservas
-- **Control de capacidad en tiempo real** — cuando un slot se llena, se bloquea
-  automáticamente para todos los visitantes (no solo para el navegador actual)
-- **Envío automático de reservas por WhatsApp** (vía CallMeBot — directo, sin abrir la app)
+- **Reservas externas** — todos los botones de "Reservar" (Navbar, Footer, Hero,
+  Especialidades y Contacto) redirigen a la página de AutoReserve:
+  `https://autoreserve.com/en/restaurants/Zeo2fTJAjtsbDwGEMcty`
 - **Galería de imágenes** con lightbox
 - **Diseño responsive** (móvil, tablet, escritorio)
 - **Animaciones de scroll** con IntersectionObserver
@@ -22,7 +17,7 @@ Sitio web oficial del Restaurante Romanova (Gandia, Valencia) — cocina mediter
 - **React 19** + **TypeScript**
 - **Vite 7** (bundler y dev server)
 - **Tailwind CSS 3.4** (estilos)
-- **React Router 7** (navegación entre páginas)
+- **React Router 7** (navegación)
 - **shadcn/ui** (componentes UI)
 - **lucide-react** (iconos)
 
@@ -57,9 +52,9 @@ Este proyecto incluye un archivo `public/_redirects` con el contenido:
 /*    /index.html   200
 ```
 
-Esto es **imprescindible** para que las rutas de React Router (como `/reservas`)
-funcionen al recargar la página o al entrar directamente por URL. Sin este
-archivo, Cloudflare Pages devuelve 404 al acceder a `/reservas` directamente.
+Esto es **imprescindible** para que las rutas de React Router funcionen al
+recargar la página o al entrar directamente por URL. Sin este archivo,
+Cloudflare Pages devuelve 404 al acceder a una ruta interna directamente.
 
 ### Pasos para desplegar en Cloudflare Pages
 
@@ -75,95 +70,53 @@ archivo, Cloudflare Pages devuelve 404 al acceder a `/reservas` directamente.
    - **Build output directory:** `dist`
    - **Node version:** `20` (o superior)
 
-5. **IMPORTANTE — Variables de entorno:** Antes de desplegar, configura las
-   API keys en `src/pages/Reservas.tsx` y `src/lib/firebase.ts` (ver sección
-   "Configuración obligatoria" abajo). Las API keys no se pueden poner como
-   variables de entorno porque el código corre en el navegador (no hay backend).
+5. Click **Save and Deploy**. El despliegue tarda ~2 minutos.
 
-6. Click **Save and Deploy**. El despliegue tarda ~2 minutos.
-
-7. Cloudflare te dará una URL como `https://romanova.pages.dev`. Para usar
+6. Cloudflare te dará una URL como `https://romanova.pages.dev`. Para usar
    un dominio propio, ve a **Custom domains** en la configuración del proyecto.
 
 ### Solución de problemas en Cloudflare Pages
 
 | Problema | Causa | Solución |
 |----------|-------|----------|
-| 404 al recargar `/reservas` | Falta `_redirects` | El archivo ya está incluido en `public/_redirects` — asegúrate de que está en el build |
-| WhatsApp no enviado | CallMeBot API key sin configurar | Reemplazar `'YOUR_CALLMEBOT_API_KEY'` en `src/pages/Reservas.tsx` |
-| Capacidad no sincroniza entre visitantes | Firebase sin configurar | Reemplazar placeholders en `src/lib/firebase.ts` y crear Firestore DB |
-| Reserva no se guarda | Firebase sin configurar o permisos incorrectos | Revisar reglas de Firestore (deben permitir `create`) |
+| 404 al recargar una ruta interna | Falta `_redirects` | El archivo ya está incluido en `public/_redirects` — asegúrate de que está en el build |
 | Página en blanco | Build fallido | Revisa los logs de build en Cloudflare Pages |
 
+## 🔗 Configuración del enlace de reservas
 
-## ⚙️ Configuración obligatoria (una sola vez)
+El enlace de reservas se define como una constante `RESERVA_URL` en tres
+archivos:
 
-Antes de poner el sitio en producción, hay que configurar dos servicios en
-`src/pages/Reservas.tsx` y `src/lib/firebase.ts`:
+- `src/components/Navbar.tsx`
+- `src/components/Footer.tsx`
+- `src/pages/Home.tsx`
 
-### 1. Firebase Firestore (base de datos de reservas + control de capacidad)
+Para cambiar el destino de los botones de "Reservar", edita el valor de
+`RESERVA_URL` en esos tres archivos:
 
-Para que la capacidad por slot se sincronice en tiempo real entre todos
-los visitantes (cuando alguien reserva, los demás ven las plazas actualizadas,
-y los horarios llenos se bloquean automáticamente para todos):
+```ts
+const RESERVA_URL = 'https://autoreserve.com/en/restaurants/Zeo2fTJAjtsbDwGEMcty';
+```
 
-1. Ir a https://console.firebase.google.com/ y crear un proyecto "romanova"
-2. Añadir una web app (`</>`) y copiar los valores de `firebaseConfig`
-3. Reemplazar los valores placeholder en `src/lib/firebase.ts` (líneas 50-57)
-4. En Firebase Console → Firestore Database → Create database (production mode)
-5. Región: `europe-west1` (o la más cercana a España)
-6. En la pestaña "Rules", pegar y publicar:
-
-   ```
-   rules_version = '2';
-   service cloud.firestore {
-     match /databases/{database}/documents {
-       match /bookings/{bookingId} {
-         allow read: if true;
-         allow create: if request.resource.data.party_size is int
-                         && request.resource.data.party_size <= 20
-                         && request.resource.data.party_size >= 1;
-       }
-     }
-   }
-   ```
-
-> Si Firebase no se configura, el sitio sigue funcionando pero la capacidad
-> se trackea solo por navegador (localStorage), no entre visitantes.
-
-### 2. CallMeBot (envío directo de WhatsApp)
-
-Para recibir las reservas en WhatsApp (+34 642 055 235) **sin abrir la app**:
-
-1. Desde el móvil con ese WhatsApp, añadir el contacto: **+34 644 79 27 34** (CallMeBot bot)
-2. Enviarle el mensaje: `I allow callmebot to send me messages`
-3. El bot responde con un API key
-4. Reemplazar en `src/pages/Reservas.tsx` (línea ~77):
-   ```ts
-   const CALLMEBOT_API_KEY = 'YOUR_CALLMEBOT_API_KEY';
-   ```
-   con la clave recibida.
-
-> **Nota sobre CORS:** CallMeBot no envía cabeceras CORS, por lo que el fetch se realiza con `mode: 'no-cors'`. La petición SÍ se envía y el mensaje SÍ se entrega, aunque el navegador no pueda leer la respuesta.
+Los botones abren el enlace en una pestaña nueva (`target="_blank"` con
+`rel="noopener noreferrer"`).
 
 ## 📁 Estructura del proyecto
 
 ```
 ROMANOVA/
 ├── public/
-│   └── images/              # Imágenes del restaurante (interior, platos, etc.)
+│   ├── images/              # Imágenes del restaurante (interior, platos, etc.)
+│   └── _redirects           # Regla SPA para Cloudflare Pages
 ├── src/
 │   ├── components/
 │   │   ├── Navbar.tsx       # Barra de navegación (compartida)
 │   │   ├── Footer.tsx       # Pie de página (compartido)
 │   │   └── ui/              # Componentes shadcn/ui
 │   ├── lib/
-│   │   ├── firebase.ts      # Configuración de Firebase Firestore
-│   │   ├── bookings.ts      # Servicio de reservas (Firebase + fallback localStorage)
 │   │   └── utils.ts         # Utilidades (cn)
 │   ├── pages/
-│   │   ├── Home.tsx         # Página principal
-│   │   └── Reservas.tsx     # Página de reservas
+│   │   └── Home.tsx         # Página principal
 │   ├── App.tsx              # Router principal
 │   ├── main.tsx             # Punto de entrada
 │   └── index.css            # Estilos globales + Tailwind

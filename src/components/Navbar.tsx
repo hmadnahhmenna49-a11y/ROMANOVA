@@ -1,21 +1,20 @@
 import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router';
+import { Link } from 'react-router';
 import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+
+// External reservation URL (AutoReserve).
+const RESERVA_URL = 'https://autoreserve.com/en/restaurants/Zeo2fTJAjtsbDwGEMcty';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 80);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  // On Reservas page, navbar should always have solid background
-  const isReservasPage = location.pathname.startsWith('/reservas');
 
   const navLinks = [
     { label: 'Inicio', href: '/#hero' },
@@ -28,7 +27,7 @@ export default function Navbar() {
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-      isReservasPage || scrolled ? 'bg-[#0d0a08]/95 backdrop-blur-md shadow-lg shadow-black/20' : 'bg-transparent'
+      scrolled ? 'bg-[#0d0a08]/95 backdrop-blur-md shadow-lg shadow-black/20' : 'bg-transparent'
     }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
@@ -47,11 +46,15 @@ export default function Navbar() {
                 {link.label}
               </a>
             ))}
-            <Link to="/reservas">
+            <a
+              href={RESERVA_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <Button className="bg-[#d4a853] hover:bg-[#c49a48] text-[#0d0a08] font-semibold px-6 tracking-wider text-sm">
                 RESERVAR
               </Button>
-            </Link>
+            </a>
           </div>
 
           {/* Mobile menu button */}
@@ -79,15 +82,17 @@ export default function Navbar() {
                 {link.label}
               </a>
             ))}
-            <Link
-              to="/reservas"
+            <a
+              href={RESERVA_URL}
+              target="_blank"
+              rel="noopener noreferrer"
               onClick={() => setMobileOpen(false)}
               className="block pt-4"
             >
               <Button className="w-full bg-[#d4a853] hover:bg-[#c49a48] text-[#0d0a08] font-semibold tracking-wider">
                 RESERVAR MESA
               </Button>
-            </Link>
+            </a>
           </div>
         </div>
       )}

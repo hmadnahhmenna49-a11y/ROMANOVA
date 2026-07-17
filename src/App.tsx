@@ -4,7 +4,6 @@ import { useLocation } from 'react-router';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Home from '@/pages/Home';
-import Reservas from '@/pages/Reservas';
 
 // Scroll to top on route change (or to hash if present)
 function ScrollToHashOrTop() {
@@ -37,7 +36,6 @@ function App() {
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/reservas" element={<Reservas />} />
         <Route path="*" element={<Home />} />
       </Routes>
       <Footer />
